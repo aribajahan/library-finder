@@ -15,10 +15,11 @@ No ISBN on the page means no banner — the extension does nothing on non-book p
 
 ## Status
 
-Phase 1 complete: Amazon only, core detection and banner working. See [PROGRESS.md](PROGRESS.md) for the full decision log, what's done, and what's next.
+Phase 1 and part of Phase 2 complete. See [PROGRESS.md](PROGRESS.md) for the full decision log, what's done, and what's next.
 
-**Supported today:** amazon.com
-**Planned:** barnesandnoble.com, target.com, walmart.com, booksamillion.com
+**Supported today:** amazon.com, walmart.com
+**Planned:** barnesandnoble.com, booksamillion.com
+**Not supported:** target.com — Target doesn't render the ISBN anywhere in the page; it's fetched via an internal, undocumented API after the page loads. Building on that would mean depending on an endpoint that isn't meant for third-party use and could break without warning, so it's on hold pending a more reliable option.
 
 ## Why not WorldCat's API or Libby?
 
@@ -41,12 +42,14 @@ library-finder/
 ├── manifest.json              Manifest V3 config
 ├── background.js              Service worker — all Open Library API calls
 ├── content_scripts/
-│   └── amazon.js               ISBN detection + banner injection for Amazon
+│   ├── amazon.js                ISBN detection for Amazon (visible page text)
+│   └── walmart.js               ISBN detection for Walmart (raw HTML label match)
 ├── ui/
 │   ├── banner.css               Banner styling
 │   └── popup.html               Extension popup (placeholder, Phase 4)
 ├── utils/
-│   ├── isbn.js                  ISBN-10/13 validation and normalization
+│   ├── isbn.js                  ISBN-10/13 validation, normalization, extraction
+│   ├── banner.js                Shared banner injection, used by every site script
 │   └── library-api.js           Open Library Books API + Read API wrapper
 └── assets/icons/                Extension icons (16/48/128px)
 ```

@@ -33,6 +33,14 @@
 - WorldCat link now searches by ISBN (`q=bn:{isbn13}`) instead of title text — exact-edition match instead of fuzzy title search. (Reported: banner search wasn't finding the right book / weak results.)
 - Banner restyled from yellow to green with verified accessible contrast (11.7:1 body text, 5.3:1 links) and copy no longer names WorldCat directly ("Find a copy" instead of "Search WorldCat") — yellow read as spammy and WorldCat is an unfamiliar name to most users.
 
+## Completed (Phase 2, partial)
+- [x] Refactored banner injection out of `amazon.js` into shared `utils/banner.js` (global, loaded before each site script) — avoids duplicating it per site
+- [x] `content_scripts/walmart.js` — ISBN detection working, verified live against a real Walmart book page
+- [x] `utils/isbn.js` — added `findISBNAfterLabel()` for sites where the ISBN is only in raw HTML (not visible text)
+
+## Decision: Target on hold
+Tested live: Target's product pages don't render the ISBN anywhere in the page HTML at all — it's fetched via an internal `deferred_enrichment` API call after page load, which is undocumented and not meant for third-party use. Same category of risk as WorldCat's dead API: could change or break without notice. Decided with Ariba to skip Target for now rather than build on it. Revisit if Target ever exposes this in a stable/public way, or if we decide the risk is worth accepting.
+
 ## Completed (Phase 4, partial)
 - [x] Real icons — 16/48/128px, generated programmatically (green rounded square, white open-book glyph), wired into `manifest.json`'s `icons` and `action.default_icon`
 - [x] `PRIVACY.md` — required for Chrome Web Store submission; states the extension reads page text for ISBNs, sends only the ISBN to Open Library, and stores/tracks nothing

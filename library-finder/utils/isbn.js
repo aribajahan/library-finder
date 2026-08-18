@@ -52,3 +52,12 @@ function findISBNInText(text) {
   }
   return null;
 }
+
+// For sites (e.g. Walmart) that only put the ISBN in the raw page HTML — inside a
+// collapsed spec list, not the visible text — labeled explicitly as "ISBN: ...".
+// Matching on that label avoids false positives from the many other numeric IDs
+// (prices, tracking pixels, product IDs) present in a page's full HTML source.
+function findISBNAfterLabel(html) {
+  const match = html.match(/ISBN[:\s]+(\d{9,13}[Xx]?)/i);
+  return match ? normalizeISBN(match[1]) : null;
+}
