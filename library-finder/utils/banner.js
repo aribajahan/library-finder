@@ -8,9 +8,9 @@ function injectLibraryFinderBanner(book) {
   const worldcatUrl = `https://search.worldcat.org/search?q=bn:${book.isbn13}`;
 
   banner.innerHTML = isDigitallyAvailable
-    ? `📚 <strong>${book.title}</strong> is available to borrow free online via Open Library.
-       <a href="https://openlibrary.org/isbn/${book.isbn13}" target="_blank" rel="noopener">Borrow Now</a>`
-    : `📚 Before you buy <strong>${book.title}</strong> — check if your local library has it.
+    ? `📚 Good news, <strong>${book.title}</strong> is free to borrow online right now.
+       <a href="https://openlibrary.org/isbn/${book.isbn13}" target="_blank" rel="noopener">Borrow now</a>`
+    : `📚 Before you buy <strong>${book.title}</strong>, check if your library has a copy. It's free, and you're supporting your library too.
        <a href="${worldcatUrl}" target="_blank" rel="noopener">Find a copy</a>`;
 
   const dismiss = document.createElement("button");
