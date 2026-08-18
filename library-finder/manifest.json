@@ -14,7 +14,13 @@
   "content_scripts": [
     {
       "matches": ["https://www.amazon.com/*"],
-      "js": ["utils/isbn.js", "content_scripts/amazon.js"],
+      "js": ["utils/isbn.js", "utils/banner.js", "content_scripts/amazon.js"],
+      "css": ["ui/banner.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.walmart.com/*"],
+      "js": ["utils/isbn.js", "utils/banner.js", "content_scripts/walmart.js"],
       "css": ["ui/banner.css"],
       "run_at": "document_idle"
     }
