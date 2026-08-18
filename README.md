@@ -2,6 +2,8 @@
 
 A Chrome extension that catches you before you buy a book online and shows you a free way to read it instead — borrow it digitally through Open Library, or find it at your local library.
 
+![Library Finder banner on an Amazon book page](docs/screenshot-amazon.png)
+
 ## How it works
 
 When you land on a book's product page, a content script scans the page for an ISBN. If it finds one, it sends that ISBN to the extension's background service worker, which checks Open Library for the book's details and its digital lending status. A small banner then appears on the page with one of two messages:
