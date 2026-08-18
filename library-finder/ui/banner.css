@@ -4,23 +4,23 @@
   box-sizing: border-box;
   width: 100%;
   padding: 12px 40px 12px 16px;
-  background: #fff4d6;
-  border-bottom: 1px solid #e0c67a;
+  background: #eaf3de;
+  border-bottom: 1px solid #c0dd97;
   font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 14px;
-  color: #3a2f00;
+  color: #173404; /* 11.7:1 against background — AAA for normal text */
   line-height: 1.5;
 }
 
 #library-finder-banner a {
   margin-left: 6px;
-  color: #0b5fae;
+  color: #3b6d11; /* 5.3:1 against background — AA for normal text */
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 #library-finder-banner a:hover {
-  text-decoration: underline;
+  color: #27500a;
 }
 
 #library-finder-dismiss {
@@ -32,5 +32,5 @@
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  color: #6b5c1f;
+  color: #3b6d11; /* 5.3:1 against background */
 }

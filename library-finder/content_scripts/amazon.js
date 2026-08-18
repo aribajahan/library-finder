@@ -18,7 +18,7 @@
       ? `📚 <strong>${book.title}</strong> is available to borrow free online via Open Library.
          <a href="https://openlibrary.org/isbn/${book.isbn13}" target="_blank" rel="noopener">Borrow Now</a>`
       : `📚 Before you buy <strong>${book.title}</strong> — check if your local library has it.
-         <a href="${worldcatUrl}" target="_blank" rel="noopener">Search WorldCat</a>`;
+         <a href="${worldcatUrl}" target="_blank" rel="noopener">Find a copy</a>`;
 
     const dismiss = document.createElement("button");
     dismiss.id = "library-finder-dismiss";
