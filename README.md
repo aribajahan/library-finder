@@ -48,5 +48,9 @@ library-finder/
 ├── utils/
 │   ├── isbn.js                  ISBN-10/13 validation and normalization
 │   └── library-api.js           Open Library Books API + Read API wrapper
-└── assets/icons/                Extension icons (not yet added)
+└── assets/icons/                Extension icons (16/48/128px)
 ```
+
+## Privacy
+
+See [PRIVACY.md](PRIVACY.md) — the short version: the extension reads page text to find ISBNs, sends only the ISBN to Open Library's API, and stores or tracks nothing.
