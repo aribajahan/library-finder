@@ -61,3 +61,37 @@ function findISBNAfterLabel(html) {
   const match = html.match(/ISBN[:\s]+(\d{9,13}[Xx]?)/i);
   return match ? normalizeISBN(match[1]) : null;
 }
+
+// Barnes & Noble puts the ISBN in the page URL as an "ean" query param.
+function findISBNInURL() {
+  const ean = new URL(location.href).searchParams.get("ean");
+  return ean ? normalizeISBN(ean) : null;
+}
+
+// Fallback for when the "ean" param isn't in the URL (e.g. a link that only has the
+// product's numeric ID): read it from the page's own schema.org JSON-LD product data,
+// specifically the current product's "offers.url" field. Deliberately scoped to that
+// field rather than a blind text search of the page, since the page also contains
+// "customers also bought"-style links to *other* books with their own ISBNs — a blind
+// search risks grabbing the wrong one.
+function findISBNInProductJSONLD() {
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of scripts) {
+    let data;
+    try {
+      data = JSON.parse(script.textContent);
+    } catch (e) {
+      continue;
+    }
+    const graph = data["@graph"] || [data];
+    for (const node of graph) {
+      const offerUrl = node.offers && node.offers.url;
+      if (!offerUrl) continue;
+      const match = offerUrl.match(/[?&]ean=(\d{9,13})/i);
+      if (!match) continue;
+      const normalized = normalizeISBN(match[1]);
+      if (normalized) return normalized;
+    }
+  }
+  return null;
+}
