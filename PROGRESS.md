@@ -26,8 +26,15 @@
 ## Open Questions
 - **User-Agent header**: browsers strip this header from `fetch()` calls regardless of what we set. Do we care enough to solve it via a `declarativeNetRequest` rule (adds complexity), or accept that Open Library won't see our identifying header for now?
 - **ISBN detection scope**: currently scans the whole page's visible text, which could occasionally false-positive on a barcode-like number elsewhere on the page (e.g., in a review or an ad). Worth tightening to Amazon's product-details section once we see it fail in practice?
-- Icons for `assets/icons/` aren't created yet — placeholder or real design, and when?
 - **Real local-branch availability**: confirmed with Ariba this isn't solvable for free/no-key today — WorldCat's public site can only show *which libraries worldwide* hold a book, not confirm a specific branch. True "your library has this" requires per-system APIs (e.g. NYPL has a free public one) and a settings UI where the user picks their system — deferred to Phase 4/v2, only covers libraries that publish an API.
+- **Chrome Web Store submission**: still needs the $5 one-time developer registration fee (Ariba has to pay this herself), a decision on whether to submit Amazon-only as v1 or wait for Phase 2's other retailers, and Google's review process once submitted.
 
 ## Fixes Applied
 - WorldCat link now searches by ISBN (`q=bn:{isbn13}`) instead of title text — exact-edition match instead of fuzzy title search. (Reported: banner search wasn't finding the right book / weak results.)
+- Banner restyled from yellow to green with verified accessible contrast (11.7:1 body text, 5.3:1 links) and copy no longer names WorldCat directly ("Find a copy" instead of "Search WorldCat") — yellow read as spammy and WorldCat is an unfamiliar name to most users.
+
+## Completed (Phase 4, partial)
+- [x] Real icons — 16/48/128px, generated programmatically (green rounded square, white open-book glyph), wired into `manifest.json`'s `icons` and `action.default_icon`
+- [x] `PRIVACY.md` — required for Chrome Web Store submission; states the extension reads page text for ISBNs, sends only the ISBN to Open Library, and stores/tracks nothing
+- [ ] Popup settings UI (library name/catalog URL) — not started
+- [ ] Actual Chrome Web Store submission — blocked on the $5 fee (Ariba's action) and the Amazon-only-vs-wait-for-Phase-2 decision
