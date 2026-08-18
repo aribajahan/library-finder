@@ -23,6 +23,18 @@
       "js": ["utils/isbn.js", "utils/banner.js", "content_scripts/walmart.js"],
       "css": ["ui/banner.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.barnesandnoble.com/*"],
+      "js": ["utils/isbn.js", "utils/banner.js", "content_scripts/barnesandnoble.js"],
+      "css": ["ui/banner.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.booksamillion.com/*"],
+      "js": ["utils/isbn.js", "utils/banner.js", "content_scripts/booksamillion.js"],
+      "css": ["ui/banner.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {

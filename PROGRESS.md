@@ -41,6 +41,13 @@
 ## Decision: Target on hold
 Tested live: Target's product pages don't render the ISBN anywhere in the page HTML at all — it's fetched via an internal `deferred_enrichment` API call after page load, which is undocumented and not meant for third-party use. Same category of risk as WorldCat's dead API: could change or break without notice. Decided with Ariba to skip Target for now rather than build on it. Revisit if Target ever exposes this in a stable/public way, or if we decide the risk is worth accepting.
 
+## Completed (Phase 2, cont.)
+- [x] `content_scripts/barnesandnoble.js` — tries the URL's `ean` query param first, falls back to reading the current product's own schema.org JSON-LD `offers.url` field. Deliberately scoped to that field (not a blind page-text search) since the page also links to *other* books' ISBNs (related items, other editions) — a blind search risked grabbing the wrong one. Verified live.
+- [x] `content_scripts/booksamillion.js` — BAM shows the ISBN directly in visible text (`ISBN-13: ...`), so it reuses the same generic detection as Amazon. Verified live.
+- [x] `utils/isbn.js` — added `findISBNInURL()` and `findISBNInProductJSONLD()` for B&N
+
+Phase 2 is now done except Target (see decision above).
+
 ## Completed (Phase 4, partial)
 - [x] Real icons — 16/48/128px, generated programmatically (green rounded square, white open-book glyph), wired into `manifest.json`'s `icons` and `action.default_icon`
 - [x] `PRIVACY.md` — required for Chrome Web Store submission; states the extension reads page text for ISBNs, sends only the ISBN to Open Library, and stores/tracks nothing

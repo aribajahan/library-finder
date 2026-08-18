@@ -15,10 +15,9 @@ No ISBN on the page means no banner — the extension does nothing on non-book p
 
 ## Status
 
-Phase 1 and part of Phase 2 complete. See [PROGRESS.md](PROGRESS.md) for the full decision log, what's done, and what's next.
+Phase 2 complete except Target. See [PROGRESS.md](PROGRESS.md) for the full decision log, what's done, and what's next.
 
-**Supported today:** amazon.com, walmart.com
-**Planned:** barnesandnoble.com, booksamillion.com
+**Supported today:** amazon.com, walmart.com, barnesandnoble.com, booksamillion.com
 **Not supported:** target.com — Target doesn't render the ISBN anywhere in the page; it's fetched via an internal, undocumented API after the page loads. Building on that would mean depending on an endpoint that isn't meant for third-party use and could break without warning, so it's on hold pending a more reliable option.
 
 ## Why not WorldCat's API or Libby?
@@ -43,7 +42,9 @@ library-finder/
 ├── background.js              Service worker — all Open Library API calls
 ├── content_scripts/
 │   ├── amazon.js                ISBN detection for Amazon (visible page text)
-│   └── walmart.js               ISBN detection for Walmart (raw HTML label match)
+│   ├── walmart.js               ISBN detection for Walmart (raw HTML label match)
+│   ├── barnesandnoble.js        ISBN detection for B&N (URL param, JSON-LD fallback)
+│   └── booksamillion.js         ISBN detection for BAM (visible page text)
 ├── ui/
 │   ├── banner.css               Banner styling
 │   └── popup.html               Extension popup (placeholder, Phase 4)
