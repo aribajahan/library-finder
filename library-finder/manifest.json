@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Library Finder",
+  "version": "0.1.0",
+  "description": "Before you buy a book online, see if you can borrow it free from your library.",
+  "permissions": [],
+  "host_permissions": [
+    "https://openlibrary.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.amazon.com/*"],
+      "js": ["utils/isbn.js", "content_scripts/amazon.js"],
+      "css": ["ui/banner.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "ui/popup.html"
+  }
+}
