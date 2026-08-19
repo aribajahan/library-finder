@@ -20,6 +20,8 @@ Phase 2 complete except Target. See [PROGRESS.md](PROGRESS.md) for the full deci
 **Supported today:** amazon.com, walmart.com, barnesandnoble.com, booksamillion.com
 **Not supported:** target.com — Target doesn't render the ISBN anywhere in the page; it's fetched via an internal, undocumented API after the page loads. Building on that would mean depending on an endpoint that isn't meant for third-party use and could break without warning, so it's on hold pending a more reliable option.
 
+Let me know if there are other sites you want this extension to work on. 
+
 ## Why not WorldCat's API or Libby?
 
 WorldCat's free developer API shut down at the end of 2024; the current version requires an institutional library subscription, which isn't accessible to an indie project. Libby (OverDrive) has no public API at all — it's institutional-partnership-only. Both are dead ends for a project like this, so v1 uses Open Library's free, no-key APIs for book data and digital lending, and links out to WorldCat's public website for local library search.
