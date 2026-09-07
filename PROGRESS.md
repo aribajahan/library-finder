@@ -1,55 +1,48 @@
 # Library Finder — Progress Log
 
-## Decisions Made
-- Manifest V3, service worker background (`type: "module"` so `background.js` can `import` from `utils/library-api.js`).
-- All Open Library API calls live in `background.js` — content scripts only detect ISBNs and render the banner, per the build guide's CSP note.
-- ISBN detection scans `document.body.innerText` with a regex + checksum validator (`utils/isbn.js`) rather than targeting Amazon's specific DOM table. More resilient to Amazon layout changes; will revisit if it proves too loose on other sites in Phase 2.
-- `isbn.js` is loaded as a plain global (not an ES module) so `content_scripts/amazon.js` can call its functions directly — Chrome content scripts share one execution context across the files listed in `manifest.json`.
-- The `User-Agent` header in `utils/library-api.js` is set on every fetch as the brief requested, but browsers treat `User-Agent` as a forbidden header and silently drop it — it won't actually reach Open Library. Flagged as an open question below.
+**Paused here as of 2026-08-18.** Pick back up at "Next Steps" below.
 
-## Completed (Phase 1)
-- [x] Full Manifest V3 folder structure scaffolded under `library-finder/`
-- [x] `manifest.json`
-- [x] `background.js` — message listener, calls Open Library APIs, responds to content script
-- [x] `content_scripts/amazon.js` — ISBN detection + banner injection
-- [x] `utils/isbn.js` — ISBN-10/13 validation, checksum, normalize-to-13
-- [x] `utils/library-api.js` — `fetchBookData`, `checkReadAvailability`, `lookupBook`
-- [x] `ui/banner.css` — basic banner styling
-- [x] `ui/popup.html` — placeholder popup (real settings UI is Phase 4)
+## Where things stand
+
+The extension works end-to-end on four of five target retailers: Amazon, Walmart, Barnes & Noble, and Books-A-Million. All verified live against real book pages. Target is on hold (see Decisions below). Banner copy, styling, icons, and privacy policy are done. Everything needed to submit to the Chrome Web Store is ready except actually submitting.
 
 ## Next Steps
-- Load unpacked in Chrome and test against a real Amazon book page (see instructions Claude gave in chat).
-- Phase 2: add `content_scripts/barnesandnoble.js`, `target.js`, `walmart.js`, `booksamillion.js`, plus their `matches` entries and `js` arrays in `manifest.json`.
-- Phase 3: polish the banner (loading state while waiting on the API response, error fallback if Open Library is slow/down, WorldCat link pre-populated more precisely).
-- Phase 4: real icons (16/48/128px), popup settings (library name/catalog URL), Chrome Web Store packaging.
+
+1. **Create/confirm the Google account for the developer dashboard.** Decided to use `ariba.jahan@gmail.com` (personal Gmail) rather than the `aribajahan.com` Google Workspace account — keeps this hobby project independent of business infrastructure, costs nothing since Ariba isn't retiring either email. Ariba still needs to actually go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) and pay the one-time $5 registration fee herself (real payment, Claude can't do this step).
+2. **Upload `dist/library-finder.zip`** — already built, current as of the banner copy update (all four sites, latest copy).
+3. **Paste in the listing** from `docs/store-listing.md` — name, short/long description, category, privacy policy URL all written.
+4. **Upload `docs/store-screenshot-1.png`** — already sized to the Store's 1280x800 requirement.
+5. **Submit for review.**
+
+Optional, not blocking submission: popup settings UI (library name/catalog URL) is still just a placeholder — Phase 4 item, low priority.
+
+## Decisions Made
+- Manifest V3, service worker background (`type: "module"` so `background.js` can `import` from `utils/library-api.js`).
+- All Open Library API calls live in `background.js` — content scripts only detect ISBNs and render the banner.
+- Banner injection lives in shared `utils/banner.js` (global, loaded before each site script) so per-site content scripts only handle ISBN extraction, not duplicate injection logic.
+- ISBN extraction differs by site, discovered by testing each live rather than assuming one approach works everywhere:
+  - **Amazon, Books-A-Million**: ISBN is in visible page text — generic regex + checksum scan (`findISBNInText`).
+  - **Walmart**: ISBN only in raw HTML behind a collapsed spec section, labeled `ISBN: ...` — label-matching extractor (`findISBNAfterLabel`).
+  - **Barnes & Noble**: ISBN in the URL's `ean` query param when present, falls back to the current product's own schema.org JSON-LD `offers.url` field (`findISBNInURL`, `findISBNInProductJSONLD`) — deliberately scoped to the current product's data, since B&N pages also link to unrelated books with their own ISBNs.
+  - **Target: on hold.** Tested live — no ISBN anywhere in the rendered page or HTML. Only reachable via an internal, undocumented `deferred_enrichment` API call Target makes after page load. Same risk profile as WorldCat's now-dead free API: could change or break without notice. Decided with Ariba to skip rather than build on it. Revisit if Target ever exposes this more durably.
+- WorldCat link uses ISBN (`q=bn:{isbn13}`) for exact-edition search, not title text — WorldCat's own site auto-sorts by proximity via IP geolocation, so no separate zip/location code was needed.
+- Banner is green (not the original yellow, which read as spammy), with verified accessible contrast (11.7:1 body text, 5.3:1 links/dismiss against background). Copy doesn't name WorldCat directly ("Find a copy" — unfamiliar service name felt spammy) and avoids em dashes. Physical-library state explains *why* checking matters ("it's free, and you're supporting your library too"); the Open Library digital-borrow state doesn't reuse that line since Open Library is a separate Internet Archive program, not the reader's actual local library.
+- The `User-Agent` header in `utils/library-api.js` is set on every fetch as the original brief requested, but browsers treat `User-Agent` as a forbidden header and silently drop it — open question below.
+- Git workflow: feature branches + PRs for each change (not committing straight to `main`), merged after Ariba confirms a live test works.
 
 ## Open Questions
-- **User-Agent header**: browsers strip this header from `fetch()` calls regardless of what we set. Do we care enough to solve it via a `declarativeNetRequest` rule (adds complexity), or accept that Open Library won't see our identifying header for now?
-- **ISBN detection scope**: currently scans the whole page's visible text, which could occasionally false-positive on a barcode-like number elsewhere on the page (e.g., in a review or an ad). Worth tightening to Amazon's product-details section once we see it fail in practice?
-- **Real local-branch availability**: confirmed with Ariba this isn't solvable for free/no-key today — WorldCat's public site can only show *which libraries worldwide* hold a book, not confirm a specific branch. True "your library has this" requires per-system APIs (e.g. NYPL has a free public one) and a settings UI where the user picks their system — deferred to Phase 4/v2, only covers libraries that publish an API.
-- **Chrome Web Store submission**: still needs the $5 one-time developer registration fee (Ariba has to pay this herself), a decision on whether to submit Amazon-only as v1 or wait for Phase 2's other retailers, and Google's review process once submitted.
+- **User-Agent header**: browsers strip this from `fetch()` regardless of what's set. Solve via a `declarativeNetRequest` rule (adds complexity), or accept Open Library won't see it?
+- **ISBN detection scope on Amazon/BAM**: scans the whole visible page text, which could occasionally false-positive on a barcode-like number elsewhere on the page. Worth tightening if it ever misfires in practice.
+- **Real local-branch availability**: not solvable for free/no-key today — WorldCat's public site shows *which libraries worldwide* hold a book, not a specific branch. True "your library has this" needs per-system APIs (e.g. NYPL has a free public one) plus a settings UI where the user picks their system — v2 territory, only covers libraries that publish an API.
+- **Target**: revisit if a durable (public/stable) way to get its ISBN turns up.
 
-## Fixes Applied
-- WorldCat link now searches by ISBN (`q=bn:{isbn13}`) instead of title text — exact-edition match instead of fuzzy title search. (Reported: banner search wasn't finding the right book / weak results.)
-- Banner restyled from yellow to green with verified accessible contrast (11.7:1 body text, 5.3:1 links) and copy no longer names WorldCat directly ("Find a copy" instead of "Search WorldCat") — yellow read as spammy and WorldCat is an unfamiliar name to most users.
-
-## Completed (Phase 2, partial)
-- [x] Refactored banner injection out of `amazon.js` into shared `utils/banner.js` (global, loaded before each site script) — avoids duplicating it per site
-- [x] `content_scripts/walmart.js` — ISBN detection working, verified live against a real Walmart book page
-- [x] `utils/isbn.js` — added `findISBNAfterLabel()` for sites where the ISBN is only in raw HTML (not visible text)
-
-## Decision: Target on hold
-Tested live: Target's product pages don't render the ISBN anywhere in the page HTML at all — it's fetched via an internal `deferred_enrichment` API call after page load, which is undocumented and not meant for third-party use. Same category of risk as WorldCat's dead API: could change or break without notice. Decided with Ariba to skip Target for now rather than build on it. Revisit if Target ever exposes this in a stable/public way, or if we decide the risk is worth accepting.
-
-## Completed (Phase 2, cont.)
-- [x] `content_scripts/barnesandnoble.js` — tries the URL's `ean` query param first, falls back to reading the current product's own schema.org JSON-LD `offers.url` field. Deliberately scoped to that field (not a blind page-text search) since the page also links to *other* books' ISBNs (related items, other editions) — a blind search risked grabbing the wrong one. Verified live.
-- [x] `content_scripts/booksamillion.js` — BAM shows the ISBN directly in visible text (`ISBN-13: ...`), so it reuses the same generic detection as Amazon. Verified live.
-- [x] `utils/isbn.js` — added `findISBNInURL()` and `findISBNInProductJSONLD()` for B&N
-
-Phase 2 is now done except Target (see decision above).
-
-## Completed (Phase 4, partial)
-- [x] Real icons — 16/48/128px, generated programmatically (green rounded square, white open-book glyph), wired into `manifest.json`'s `icons` and `action.default_icon`
-- [x] `PRIVACY.md` — required for Chrome Web Store submission; states the extension reads page text for ISBNs, sends only the ISBN to Open Library, and stores/tracks nothing
-- [ ] Popup settings UI (library name/catalog URL) — not started
-- [ ] Actual Chrome Web Store submission — blocked on the $5 fee (Ariba's action) and the Amazon-only-vs-wait-for-Phase-2 decision
+## Completed
+- [x] Full Manifest V3 scaffold, `manifest.json`, `background.js`, `utils/library-api.js` (Open Library Books API + Read API)
+- [x] ISBN detection + banner injection for Amazon, Walmart, Barnes & Noble, Books-A-Million — all verified live
+- [x] Banner styling (accessible green palette) and copy (warm, no em dash, accurate per-state reasoning)
+- [x] Real icons (16/48/128px, generated programmatically, green rounded square with white open-book glyph)
+- [x] `PRIVACY.md` — states the extension reads page text for ISBNs, sends only the ISBN to Open Library, stores/tracks nothing
+- [x] Chrome Web Store prep: sized screenshot (`docs/store-screenshot-1.png`), listing copy (`docs/store-listing.md`), packaged zip (`dist/library-finder.zip`)
+- [ ] Popup settings UI (library name/catalog URL) — not started, not blocking submission
+- [ ] Target support — on hold, see Decisions above
+- [ ] Actual Chrome Web Store submission — waiting on Ariba to register the developer account and pay the $5 fee
